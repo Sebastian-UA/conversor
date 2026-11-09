@@ -178,10 +178,11 @@ def convertir(ruta_powerpoint, ruta_word):
         documento.save(ruta_word)
 
         print("¡Documento Word creado correctamente!")
-
+        return True
     except Exception as error:
 
         print(f"Ocurrió un error: {error}")
+        return False
 
 # Ejecutar la función de conversión
 #convertir("ejemplo.pptx", "resultado.docx")

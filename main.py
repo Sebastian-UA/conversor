@@ -1,6 +1,6 @@
 
 # Importar herramientas de PySide6
-from PySide6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog
+from PySide6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog, QMessageBox 
 from conversor import convertir
 
 # Variable para guardar la ruta del PowerPoint
@@ -42,19 +42,45 @@ def seleccionar_destino():
         texto_destino.setText(ruta_word)
         
 # Función para convertir el PowerPoint a Word
+
+# Función para convertir el PowerPoint a Word
 def convertir_archivo():
 
     if not ruta_powerpoint:
-        print("Primero debes seleccionar un PowerPoint")
+        QMessageBox.critical(
+            ventana,
+            "Error",
+            "Primero debes seleccionar un PowerPoint"
+        )
         return
 
     if not ruta_word:
-        print("Primero debes seleccionar dónde guardar el Word")
+        QMessageBox.critical(
+            ventana,
+            "Error",
+            "Primero debes seleccionar un lugar donde guardar el archivo"
+        )
         return
 
-    convertir(ruta_powerpoint, ruta_word)
+    resultado = convertir(ruta_powerpoint, ruta_word)
 
-# Crear la aplicación
+    if resultado:
+        QMessageBox.information(
+            ventana,
+            "Éxito",
+            "Documento creado correctamente"
+        )
+
+    else:
+        QMessageBox.critical(
+            ventana,
+            "Error",
+            "No se pudo crear el documento"
+        )
+
+
+
+# CREAR LA APLICACION
 app = QApplication([])
 
 # Crear una ventana
