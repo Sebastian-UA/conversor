@@ -1,2 +1,6 @@
 resultado.docx
 ejemplo.pptx
+.venv/
+build/
+__pycache__/
+Conversor.spec
