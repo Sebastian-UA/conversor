@@ -1,177 +1,55 @@
 
-from pptx import Presentation
-from pptx.enum.shapes import PP_PLACEHOLDER
-from pptx.oxml.ns import qn
-
-# Nuevas importaciones para crear documentos Word
-from docx import Document
-from docx.shared import Pt, Cm
+# Importar herramientas de PySide6
+from PySide6.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout, QPushButton, QFileDialog
 
 
-# Abrir una presentación PowerPoint
-presentacion = Presentation("ejemplo.pptx")
+# Función para seleccionar un archivo
+def seleccionar_archivo():
 
-# Crear un documento Word
-documento = Document()
+    archivo, _ = QFileDialog.getOpenFileName( #asi se usa la funcion
+        ventana,
+        "Seleccionar PowerPoint",
+        "",
+        "Archivos PowerPoint (*.pptx)"
+    )
 
-
-# Configurar los márgenes de la hoja Word
-seccion = documento.sections[0]
-
-seccion.top_margin = Cm(1.5)
-seccion.bottom_margin = Cm(1.5)
-seccion.left_margin = Cm(2)
-seccion.right_margin = Cm(2)
-
-# Configurar el estilo normal del documento
-estilo = documento.styles["Normal"]
-
-estilo.font.name = "Arial"
-estilo.font.size = Pt(10)
-
-estilo.paragraph_format.space_before = Pt(0)
-estilo.paragraph_format.space_after = Pt(2)
-estilo.paragraph_format.line_spacing = 1.0
-
-# Configurar el estilo de los títulos
-estilo_titulo = documento.styles["Heading 1"]
-
-estilo_titulo.font.name = "Arial"
-estilo_titulo.font.size = Pt(14)
-estilo_titulo.font.bold = True
-
-estilo_titulo.paragraph_format.space_before = Pt(5)
-estilo_titulo.paragraph_format.space_after = Pt(2)
+    if archivo:
+        texto.setText(archivo)
 
 
-# Recorrer las diapositivas
-for diapositiva in presentacion.slides:  # Permite acceder a todas las diapositivas
+# Crear la aplicación
+app = QApplication([])
 
-    for forma in diapositiva.shapes:  # Recorrer los elementos de cada diapositiva
+# Crear una ventana
+ventana = QWidget()
 
-        # Comprobar si el elemento contiene texto
-        if not forma.has_text_frame:
-            continue
+# Configurar la ventana
+ventana.setWindowTitle("Conversor PowerPoint a Word")
+ventana.resize(500, 300)
 
-        # Comprobar si el elemento es un placeholder
-        if forma.is_placeholder:
+# Crear un texto
+texto = QLabel("Ningún archivo seleccionado")
 
-            # Obtener el tipo de placeholder
-            tipo = forma.placeholder_format.type
+# Crear un botón
+boton = QPushButton("Seleccionar PowerPoint")
 
-            # Identificar títulos
-            if tipo == PP_PLACEHOLDER.TITLE or tipo == PP_PLACEHOLDER.CENTER_TITLE:
-                nombre = "TÍTULO"
+# Conectar el botón con la función
+boton.clicked.connect(seleccionar_archivo)
 
-            # Identificar subtítulos
-            elif tipo == PP_PLACEHOLDER.SUBTITLE:
-                nombre = "SUBTÍTULO"
+# Crear un diseño vertical
+layout = QVBoxLayout()
 
-            # Otros tipos de contenido
-            else:
-                nombre = "CONTENIDO"
+# Agregar el texto al diseño
+layout.addWidget(texto)
 
-        else:
-            nombre = "CONTENIDO"
+# Agregar el botón al diseño
+layout.addWidget(boton)
 
-        # Recorrer los párrafos de cada elemento
-        for parrafo in forma.text_frame.paragraphs:
+# Asignar el diseño a la ventana
+ventana.setLayout(layout)
 
-            # Evitar párrafos vacíos
-            texto = parrafo.text.strip()
+# Mostrar la ventana
+ventana.show()
 
-            if not texto:
-                continue
-
-            # Mostrar el nivel del párrafo
-            print(f"Nivel: {parrafo.level}")
-
-            # Obtener las propiedades XML del párrafo
-            propiedades = parrafo._p.find(qn("a:pPr"))
-
-            # Comprobar si tiene viñeta o numeración
-            tiene_vineta = False
-            tiene_numeracion = False
-
-            if propiedades is not None:
-
-                if propiedades.find(qn("a:buChar")) is not None:
-                    tiene_vineta = True
-
-                elif propiedades.find(qn("a:buAutoNum")) is not None:
-                    tiene_numeracion = True
-
-            # Mostrar el tipo de contenido
-            if tiene_vineta:
-
-                print(f"VIÑETA: {texto}")
-
-                # Seleccionar el estilo según el nivel
-                nivel_lista = parrafo.level + 1
-
-                if nivel_lista == 1:
-                    estilo_lista = "List Bullet"
-                else:
-                    estilo_lista = f"List Bullet {nivel_lista}"
-
-                # Agregar la viñeta al documento Word
-                parrafo_word = documento.add_paragraph(
-                    texto,
-                    style=estilo_lista
-                )
-
-            elif tiene_numeracion:
-
-                print(f"NUMERACIÓN: {texto}")
-
-                # Seleccionar el estilo según el nivel
-                nivel_lista = parrafo.level + 1
-
-                if nivel_lista == 1:
-                    estilo_lista = "List Number"
-                else:
-                    estilo_lista = f"List Number {nivel_lista}"
-
-                # Agregar el elemento numerado al documento Word
-                parrafo_word = documento.add_paragraph( 
-                    texto,
-                    style=estilo_lista
-                )
-
-            elif nombre == "TÍTULO": 
-
-                print(f"{nombre}: {texto}")
-
-                parrafo_word = documento.add_heading(texto, level=1)
-
-            elif nombre == "SUBTÍTULO":
-
-                print(f"{nombre}: {texto}")
-
-                parrafo_word = documento.add_paragraph()
-                texto_word = parrafo_word.add_run(texto)
-
-                texto_word.bold = True
-                texto_word.font.size = Pt(11)
-
-            else:
-
-                print(f"{nombre}: {texto}")
-
-                parrafo_word = documento.add_paragraph(texto)
-
-                # Aplicar sangría según el nivel de PowerPoint
-                parrafo_word.paragraph_format.left_indent = Cm(
-                    0.5 * parrafo.level
-                )
-
-            # Configurar el espacio entre párrafos
-            parrafo_word.paragraph_format.space_before = Pt(0)
-            parrafo_word.paragraph_format.space_after = Pt(2)
-            parrafo_word.paragraph_format.line_spacing = 1.0
-
-
-# Guardar el documento Word
-documento.save("resultado.docx")
-
-print("¡Documento Word creado correctamente!")
+# Mantener la aplicación ejecutándose
+app.exec()
