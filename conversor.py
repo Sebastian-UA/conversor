@@ -1,3 +1,4 @@
+import re
 
 from pptx import Presentation
 from pptx.enum.shapes import PP_PLACEHOLDER
@@ -80,8 +81,8 @@ def convertir(ruta_powerpoint, ruta_word):
                 # Recorrer los párrafos de cada elemento
                 for parrafo in forma.text_frame.paragraphs:
 
-                    # Evitar párrafos vacíos
-                    texto = parrafo.text.strip()
+                    # Limpiar caracteres especiales que Word no permite
+                    texto = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', ' ', parrafo.text).strip()
 
                     if not texto:
                         continue
