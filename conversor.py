@@ -1,3 +1,4 @@
+
 import re
 
 from pptx import Presentation
@@ -18,7 +19,6 @@ def convertir(ruta_powerpoint, ruta_word):
         # Crear un documento Word
         documento = Document()
 
-
         # Configurar los márgenes de la hoja Word
         seccion = documento.sections[0]
 
@@ -34,8 +34,8 @@ def convertir(ruta_powerpoint, ruta_word):
         estilo.font.size = Pt(10)
 
         estilo.paragraph_format.space_before = Pt(0)
-        estilo.paragraph_format.space_after = Pt(2)
-        estilo.paragraph_format.line_spacing = 1.0
+        estilo.paragraph_format.space_after = Pt(6)
+        estilo.paragraph_format.line_spacing = 1.15
 
         # Configurar el estilo de los títulos
         estilo_titulo = documento.styles["Heading 1"]
@@ -44,9 +44,9 @@ def convertir(ruta_powerpoint, ruta_word):
         estilo_titulo.font.size = Pt(14)
         estilo_titulo.font.bold = True
 
-        estilo_titulo.paragraph_format.space_before = Pt(5)
-        estilo_titulo.paragraph_format.space_after = Pt(2)
-
+        estilo_titulo.paragraph_format.space_before = Pt(14)
+        estilo_titulo.paragraph_format.space_after = Pt(8)
+        estilo_titulo.paragraph_format.keep_with_next = True
 
         # Recorrer las diapositivas
         for diapositiva in presentacion.slides:  # Permite acceder a todas las diapositivas
@@ -82,7 +82,11 @@ def convertir(ruta_powerpoint, ruta_word):
                 for parrafo in forma.text_frame.paragraphs:
 
                     # Limpiar caracteres especiales que Word no permite
-                    texto = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', ' ', parrafo.text).strip()
+                    texto = re.sub(
+                        r'[\x00-\x08\x0B\x0C\x0E-\x1F]',
+                        ' ',
+                        parrafo.text
+                    ).strip()
 
                     if not texto:
                         continue
@@ -158,6 +162,11 @@ def convertir(ruta_powerpoint, ruta_word):
                         texto_word.bold = True
                         texto_word.font.size = Pt(11)
 
+                        # Configurar separación del subtítulo
+                        parrafo_word.paragraph_format.space_before = Pt(8)
+                        parrafo_word.paragraph_format.space_after = Pt(5)
+                        parrafo_word.paragraph_format.keep_with_next = True
+
                     else:
 
                         print(f"{nombre}: {texto}")
@@ -170,20 +179,22 @@ def convertir(ruta_powerpoint, ruta_word):
                         )
 
                     # Configurar el espacio entre párrafos
-                    parrafo_word.paragraph_format.space_before = Pt(0)
-                    parrafo_word.paragraph_format.space_after = Pt(2)
-                    parrafo_word.paragraph_format.line_spacing = 1.0
+                    parrafo_word.paragraph_format.line_spacing = 1.15
 
+                    if nombre == "CONTENIDO":
+                        parrafo_word.paragraph_format.space_after = Pt(6)
 
         # Guardar el documento Word
         documento.save(ruta_word)
 
         print("¡Documento Word creado correctamente!")
         return True
+
     except Exception as error:
 
         print(f"Ocurrió un error: {error}")
         return False
+
 
 # Ejecutar la función de conversión
 #convertir("ejemplo.pptx", "resultado.docx")
