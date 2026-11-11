@@ -115,7 +115,7 @@ def convertir(ruta_powerpoint, ruta_word):
                         print(f"VIÑETA: {texto}")
 
                         # Seleccionar el estilo según el nivel
-                        nivel_lista = parrafo.level + 1
+                        nivel_lista = min(parrafo.level + 1, 3)
 
                         if nivel_lista == 1:
                             estilo_lista = "List Bullet"
@@ -133,7 +133,7 @@ def convertir(ruta_powerpoint, ruta_word):
                         print(f"NUMERACIÓN: {texto}")
 
                         # Seleccionar el estilo según el nivel
-                        nivel_lista = parrafo.level + 1
+                        nivel_lista = min(parrafo.level + 1, 3)
 
                         if nivel_lista == 1:
                             estilo_lista = "List Number"
